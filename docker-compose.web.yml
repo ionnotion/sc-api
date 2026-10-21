@@ -1,0 +1,14 @@
+# Optional: run the separate frontend repo together with the API.
+# Expects the frontend checked out next to this repo as ../school-academic-web
+#   docker compose -f docker-compose.yml -f docker-compose.web.yml up --build
+services:
+  web:
+    build:
+      context: ../school-academic-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      API_UPSTREAM: http://api:8080
+    ports:
+      - "3000:80"     # public: /   admin: /admin/   API: /api/

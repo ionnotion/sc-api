@@ -1,0 +1,20 @@
+# Usage: docker compose -f docker-compose.yml -f docker-compose.web.yml -f docker-compose.prod.yml up -d --build
+services:
+  api:
+    ports: !reset []        # only Caddy is exposed
+  web:
+    ports: !reset []
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on:
+      - api
+
+volumes:
+  caddy_data:
