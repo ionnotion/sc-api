@@ -173,7 +173,7 @@ type Enrollment struct {
 	Documents      []Document `json:"documents,omitempty"`
 }
 
-const enrollmentSelect = `SELECT e.id, e.academic_year_id, ay.name, e.applicant_id, u.full_name,
+const enrollmentSelect = `SELECT e.id, e.academic_year_id, ay.name, e.applicant_id, u.first_name,u. last_name,
 	e.student_name, e.birth_date::text, e.gender, e.previous_school, e.target_level,
 	e.parent_name, e.parent_phone, e.address, e.status::text, e.admin_note, e.created_at, e.updated_at
 	FROM enrollments e

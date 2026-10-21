@@ -89,7 +89,7 @@ func SeedSuperAdmin(ctx context.Context, pool *pgxpool.Pool, email, password str
 		return err
 	}
 	_, err = pool.Exec(ctx,
-		`INSERT INTO users (full_name, email, password_hash, role) VALUES ('Super Admin', $1, $2, $3)
+		`INSERT INTO users (first_name, last_name, email, password_hash, role) VALUES ('Super', 'Admin', $1, $2, $3)
 		 ON CONFLICT (email) DO UPDATE SET role = EXCLUDED.role`,
 		email, hash, authmw.RoleSuperAdmin)
 	if err == nil {

@@ -30,7 +30,7 @@ type Post struct {
 }
 
 const postSelect = `SELECT p.id, p.type::text, p.title, p.slug, p.excerpt, p.body, p.is_published,
-	p.published_at, u.full_name, p.created_at, p.updated_at
+	p.published_at, u.first_name, u.last_name, p.created_at, p.updated_at
 	FROM posts p JOIN users u ON u.id = p.author_id`
 
 func scanPost(s scanner, p *Post) error {

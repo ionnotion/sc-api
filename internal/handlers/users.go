@@ -25,7 +25,8 @@ var adminRoles = allRoles[1:]
 
 type User struct {
 	ID        uuid.UUID `json:"id"`
-	FullName  string    `json:"full_name"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
 	Email     string    `json:"email"`
 	Phone     string    `json:"phone"`
 	Role      string    `json:"role"`
@@ -33,26 +34,28 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-const userCols = `id, full_name, email, phone, role::text, is_active, created_at`
+const userCols = `id, first_name, last_name, email, phone, role::text, is_active, created_at`
 
 func scanUser(s scanner, u *User) error {
-	return s.Scan(&u.ID, &u.FullName, &u.Email, &u.Phone, &u.Role, &u.IsActive, &u.CreatedAt)
+	return s.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.Phone, &u.Role, &u.IsActive, &u.CreatedAt)
 }
 
 type accountReq struct {
-	FullName string `json:"full_name"`
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
-	Password string `json:"password"`
-	Role     string `json:"role"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	Phone     string `json:"phone"`
+	Password  string `json:"password"`
+	Role      string `json:"role"`
 }
 
 func (r *accountReq) validate() error {
-	r.FullName = strings.TrimSpace(r.FullName)
+	r.FirstName = strings.TrimSpace(r.FirstName)
+	r.LastName = strings.TrimSpace(r.LastName)
 	r.Email = strings.ToLower(strings.TrimSpace(r.Email))
 	r.Phone = strings.TrimSpace(r.Phone)
-	if r.FullName == "" {
-		return invalid("full_name is required")
+	if r.FirstName == "" {
+		return invalid("first_name is required")
 	}
 	if _, err := mail.ParseAddress(r.Email); err != nil || len(r.Email) > 254 {
 		return invalid("a valid email is required")
@@ -70,8 +73,8 @@ func (h *Handler) insertUser(ctx context.Context, r accountReq, role string) (Us
 	}
 	var u User
 	err = scanUser(h.DB.QueryRow(ctx,
-		`INSERT INTO users (full_name, email, phone, password_hash, role) VALUES ($1,$2,$3,$4,$5)
-		 RETURNING `+userCols, r.FullName, r.Email, r.Phone, hash, role), &u)
+		`INSERT INTO users (first_name, last_name, email, phone, password_hash, role) VALUES ($1,$2,$3,$4,$5)
+		 RETURNING `+userCols, r.FirstName, r.LastName, r.Email, r.Phone, hash, role), &u)
 	return u, err
 }
 
@@ -128,7 +131,7 @@ func (h *Handler) Login(c echo.Context) error {
 	err := h.DB.QueryRow(c.Request().Context(),
 		`SELECT `+userCols+`, password_hash FROM users WHERE email=$1`,
 		strings.ToLower(strings.TrimSpace(r.Email)),
-	).Scan(&u.ID, &u.FullName, &u.Email, &u.Phone, &u.Role, &u.IsActive, &u.CreatedAt, &hash)
+	).Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.Phone, &u.Role, &u.IsActive, &u.CreatedAt, &hash)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return internalErr(err)
 	}

@@ -1,11 +1,7 @@
-CREATE TYPE user_role AS ENUM ('user', 'news_admin', 'enrollment_admin', 'super_admin');
-CREATE TYPE post_type AS ENUM ('news', 'announcement');
-CREATE TYPE enrollment_status AS ENUM ('pending', 'under_review', 'needs_revision', 'accepted', 'rejected');
-
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     first_name    VARCHAR(25) NOT NULL,
-    flast_name    VARCHAR(25) NOT NULL,
+    last_name    VARCHAR(25) NOT NULL,
     email         VARCHAR(50) NOT NULL UNIQUE,
     phone         VARCHAR(25) NOT NULL DEFAULT '',
     password_hash TEXT NOT NULL,
@@ -15,7 +11,7 @@ CREATE TABLE users (
     updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE posts (
+CREATE TABLE IF NOT EXISTS posts (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     type         post_type NOT NULL,
     title        VARCHAR(50) NOT NULL,
@@ -31,7 +27,7 @@ CREATE TABLE posts (
 
 CREATE INDEX posts_published_idx ON posts (is_published, published_at DESC);
 
-CREATE TABLE academic_years (
+CREATE TABLE IF NOT EXISTS academic_years (
     id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name              VARCHAR(25) NOT NULL UNIQUE,          -- e.g. 2026/2027
     start_date        DATE NOT NULL,
@@ -40,7 +36,7 @@ CREATE TABLE academic_years (
     created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE enrollments (
+CREATE TABLE IF NOT EXISTS enrollments (
     id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     academic_year_id UUID NOT NULL REFERENCES academic_years(id),
     applicant_id     UUID NOT NULL REFERENCES users(id),
@@ -61,7 +57,7 @@ CREATE TABLE enrollments (
 CREATE INDEX enrollments_applicant_idx ON enrollments (applicant_id);
 CREATE INDEX enrollments_year_status_idx ON enrollments (academic_year_id, status);
 
-CREATE TABLE enrollment_documents (
+CREATE TABLE IF NOT EXISTS enrollment_documents (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     enrollment_id UUID NOT NULL REFERENCES enrollments(id) ON DELETE CASCADE,
     doc_type      TEXT NOT NULL,
@@ -73,7 +69,7 @@ CREATE TABLE enrollment_documents (
 );
 CREATE INDEX enrollment_documents_enrollment_idx ON enrollment_documents (enrollment_id);
 
-CREATE TABLE enrollment_status_history (
+CREATE TABLE IF NOT EXISTS enrollment_status_history (
     id            BIGSERIAL PRIMARY KEY,
     enrollment_id UUID NOT NULL REFERENCES enrollments(id) ON DELETE CASCADE,
     from_status   enrollment_status NOT NULL,

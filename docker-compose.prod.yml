@@ -15,6 +15,9 @@ services:
       - caddy_data:/data
     depends_on:
       - api
+  db:
+     ports:
+       - "127.0.0.1:5433:5433"
 
 volumes:
   caddy_data:
