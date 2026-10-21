@@ -36,16 +36,3 @@ docker compose up --build   # API + Postgres on http://localhost:8080
 | `GET /api/admin/news/:id` | news_admin, super_admin |
 | `PUT /api/enrollments/:id`, `DELETE /api/enrollments/:id/documents/:docId` | owner while `pending`/`needs_revision`; enrollment admins any time |
 | `DELETE /api/admin/enrollments/:id` | enrollment_admin, super_admin (also removes uploaded files) |
-
-## Quick walkthrough
-```bash
-B=http://localhost:8080/api
-TOKEN=$(curl -s $B/auth/login -H 'Content-Type: application/json' \
-  -d '{"email":"admin@yourschool.sch.id","password":"change-me-now-12345"}' | jq -r .token)
-
-curl -s $B/admin/academic-years -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-  -d '{"name":"2026/2027","start_date":"2026-07-13","end_date":"2027-06-26","registration_open":true}'
-
-curl -s $B/admin/news -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-  -d '{"type":"announcement","title":"Enrollment is open","excerpt":"Register now","body":"Details...","is_published":true}'
-```
