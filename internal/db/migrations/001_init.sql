@@ -4,9 +4,10 @@ CREATE TYPE enrollment_status AS ENUM ('pending', 'under_review', 'needs_revisio
 
 CREATE TABLE users (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    full_name     TEXT NOT NULL,
-    email         TEXT NOT NULL UNIQUE,
-    phone         TEXT NOT NULL DEFAULT '',
+    first_name    VARCHAR(25) NOT NULL,
+    flast_name    VARCHAR(25) NOT NULL,
+    email         VARCHAR(50) NOT NULL UNIQUE,
+    phone         VARCHAR(25) NOT NULL DEFAULT '',
     password_hash TEXT NOT NULL,
     role          user_role NOT NULL DEFAULT 'user',
     is_active     BOOLEAN NOT NULL DEFAULT TRUE,
@@ -17,8 +18,8 @@ CREATE TABLE users (
 CREATE TABLE posts (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     type         post_type NOT NULL,
-    title        TEXT NOT NULL,
-    slug         TEXT NOT NULL UNIQUE,
+    title        VARCHAR(50) NOT NULL,
+    slug         VARCHAR(25) NOT NULL UNIQUE,
     excerpt      TEXT NOT NULL DEFAULT '',
     body         TEXT NOT NULL,
     is_published BOOLEAN NOT NULL DEFAULT FALSE,
@@ -27,11 +28,12 @@ CREATE TABLE posts (
     created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
 CREATE INDEX posts_published_idx ON posts (is_published, published_at DESC);
 
 CREATE TABLE academic_years (
     id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name              TEXT NOT NULL UNIQUE,          -- e.g. 2026/2027
+    name              VARCHAR(25) NOT NULL UNIQUE,          -- e.g. 2026/2027
     start_date        DATE NOT NULL,
     end_date          DATE NOT NULL CHECK (end_date > start_date),
     registration_open BOOLEAN NOT NULL DEFAULT FALSE,
@@ -45,16 +47,17 @@ CREATE TABLE enrollments (
     student_name     TEXT NOT NULL,
     birth_date       DATE NOT NULL,
     gender           TEXT NOT NULL CHECK (gender IN ('male', 'female')),
-    previous_school  TEXT NOT NULL DEFAULT '',
-    target_level     TEXT NOT NULL,
-    parent_name      TEXT NOT NULL,
-    parent_phone     TEXT NOT NULL,
+    previous_school  VARCHAR(50) NOT NULL DEFAULT '',
+    target_level     VARCHAR(25) NOT NULL,
+    parent_name      VARCHAR(50) NOT NULL,
+    parent_phone     VARCHAR(25) NOT NULL,
     address          TEXT NOT NULL,
     status           enrollment_status NOT NULL DEFAULT 'pending',
     admin_note       TEXT NOT NULL DEFAULT '',
     created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
 CREATE INDEX enrollments_applicant_idx ON enrollments (applicant_id);
 CREATE INDEX enrollments_year_status_idx ON enrollments (academic_year_id, status);
 
