@@ -1,9 +1,0 @@
-{{define "content"}}
-<article>
-  <span class="tag">{{.Post.Type}}</span>
-  <h1>{{.Post.Title}}</h1>
-  <small>{{date .Post.PublishedAt}} · {{.Post.Author}}</small>
-  {{range paragraphs .Post.Body}}<p>{{.}}</p>{{end}}
-</article>
-<p><a href="/news">&larr; Back to news</a></p>
-{{end}}

@@ -18,7 +18,6 @@ import (
 	"schoolapp/internal/config"
 	"schoolapp/internal/db"
 	"schoolapp/internal/handlers"
-	"schoolapp/web"
 )
 
 func main() {
@@ -41,14 +40,9 @@ func main() {
 	}
 
 	h := &handlers.Handler{DB: pool, Cfg: cfg}
-	renderer, err := handlers.NewRenderer()
-	if err != nil {
-		log.Fatalf("templates: %v", err)
-	}
 
 	e := echo.New()
 	e.HideBanner = true
-	e.Renderer = renderer
 	// Behind Caddy/nginx on a private network, trust X-Real-IP; direct clients fall back to the socket IP.
 	e.IPExtractor = echo.ExtractIPFromRealIPHeader()
 
@@ -63,12 +57,6 @@ func main() {
 	}
 
 	// ---- public pages
-	e.StaticFS("/static", echo.MustSubFS(web.FS, "static"))
-	e.GET("/", h.HomePage)
-	e.GET("/about", h.AboutPage)
-	e.GET("/contact", h.ContactPage)
-	e.GET("/news", h.NewsPage)
-	e.GET("/news/:slug", h.NewsDetailPage)
 	e.GET("/healthz", func(c echo.Context) error {
 		if err := pool.Ping(c.Request().Context()); err != nil {
 			return echo.NewHTTPError(http.StatusServiceUnavailable, "db down")
