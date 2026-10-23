@@ -30,7 +30,7 @@ type Post struct {
 }
 
 const postSelect = `SELECT p.id, p.type::text, p.title, p.slug, p.excerpt, p.body, p.is_published,
-	p.published_at, u.first_name, u.last_name, p.created_at, p.updated_at
+	p.published_at, CONCAT(u.first_name, ' ' ,u.last_name) as author, p.created_at, p.updated_at
 	FROM posts p JOIN users u ON u.id = p.author_id`
 
 func scanPost(s scanner, p *Post) error {
@@ -167,21 +167,31 @@ func (h *Handler) CreatePost(c echo.Context) error {
 		if attempt > 0 {
 			slug += "-" + uuid.NewString()[:6]
 		}
+
+		fmt.Println("attempt:", attempt)
+		fmt.Println(slug)
+
 		err = h.DB.QueryRow(ctx,
 			`INSERT INTO posts (type, title, slug, excerpt, body, is_published, published_at, author_id)
 			 VALUES ($1, $2, $3, $4, $5, $6, CASE WHEN $6 THEN now() END, $7) RETURNING id`,
 			r.Type, r.Title, slug, r.Excerpt, r.Body, r.IsPublished, authmw.UserID(c)).Scan(&id)
 		if !isUniqueViolation(err) {
+			fmt.Println(err)
 			break
 		}
 	}
 	if err != nil {
 		return internalErr(err)
 	}
+
+	fmt.Println("sampai sini")
+	fmt.Println(ctx)
+
 	p, err := h.postByID(ctx, id)
 	if err != nil {
 		return internalErr(err)
 	}
+
 	return c.JSON(http.StatusCreated, p)
 }
 
