@@ -5,6 +5,12 @@ services:
   web:
     build:
       context: ../sc-web
+      args:
+        VITE_SITE_NAME: "Darul Furqan Pariaman"
+        VITE_SITE_TAGLINE: "Darfurqpam"
+        VITE_SITE_ADDRESS: "Jalan ... Kota ..."
+        VITE_SITE_PHONE: "+62 ..."
+        VITE_SITE_EMAIL: "info@darfurqpam.sch.id"
     restart: unless-stopped
     depends_on:
       - api
