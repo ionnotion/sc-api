@@ -173,7 +173,7 @@ type Enrollment struct {
 	Documents      []Document `json:"documents,omitempty"`
 }
 
-const enrollmentSelect = `SELECT e.id, e.academic_year_id, ay.name, e.applicant_id, u.first_name,u. last_name,
+const enrollmentSelect = `SELECT e.id, e.academic_year_id, ay.name as academic_year, e.applicant_id, CONCAT(u.first_name, '', u. last_name) as applicant_name,
 	e.student_name, e.birth_date::text, e.gender, e.previous_school, e.target_level,
 	e.parent_name, e.parent_phone, e.address, e.status::text, e.admin_note, e.created_at, e.updated_at
 	FROM enrollments e
@@ -209,8 +209,10 @@ func (h *Handler) listEnrollments(ctx context.Context, where []string, args []an
 func (h *Handler) getEnrollment(ctx context.Context, id uuid.UUID) (Enrollment, error) {
 	var e Enrollment
 	if err := scanEnrollment(h.DB.QueryRow(ctx, enrollmentSelect+` WHERE e.id=$1`, id), &e); err != nil {
+		fmt.Println(e)
 		return e, err
 	}
+	fmt.Println("2")
 	rows, err := h.DB.Query(ctx,
 		`SELECT id, doc_type, original_name, content_type, size_bytes, uploaded_at
 		 FROM enrollment_documents WHERE enrollment_id=$1 ORDER BY uploaded_at`, id)
@@ -218,6 +220,7 @@ func (h *Handler) getEnrollment(ctx context.Context, id uuid.UUID) (Enrollment, 
 		return e, err
 	}
 	defer rows.Close()
+	fmt.Println("3")
 	for rows.Next() {
 		var d Document
 		if err := rows.Scan(&d.ID, &d.DocType, &d.OriginalName, &d.ContentType, &d.SizeBytes, &d.UploadedAt); err != nil {
@@ -293,6 +296,9 @@ func (h *Handler) CreateEnrollment(c echo.Context) error {
 	if err != nil {
 		return internalErr(err)
 	}
+
+	fmt.Println("sampai sini")
+
 	e, err := h.getEnrollment(ctx, id)
 	if err != nil {
 		return internalErr(err)

@@ -73,7 +73,7 @@ func (h *Handler) insertUser(ctx context.Context, r accountReq, role string) (Us
 	}
 	var u User
 	err = scanUser(h.DB.QueryRow(ctx,
-		`INSERT INTO users (first_name, last_name, email, phone, password_hash, role) VALUES ($1,$2,$3,$4,$5)
+		`INSERT INTO users (first_name, last_name, email, phone, password_hash, role) VALUES ($1,$2,$3,$4,$5,$6)
 		 RETURNING `+userCols, r.FirstName, r.LastName, r.Email, r.Phone, hash, role), &u)
 	return u, err
 }

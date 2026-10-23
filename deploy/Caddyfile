@@ -1,5 +1,5 @@
 # Replace with your real domain; Caddy gets and renews the HTTPS certificate automatically.
-school.example.sch.id {
+sc.ionnotion.web.id {
 	encode gzip
 	reverse_proxy web:80 {
 		header_up X-Real-IP {remote_host}
