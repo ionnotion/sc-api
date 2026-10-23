@@ -168,24 +168,17 @@ func (h *Handler) CreatePost(c echo.Context) error {
 			slug += "-" + uuid.NewString()[:6]
 		}
 
-		fmt.Println("attempt:", attempt)
-		fmt.Println(slug)
-
 		err = h.DB.QueryRow(ctx,
 			`INSERT INTO posts (type, title, slug, excerpt, body, is_published, published_at, author_id)
 			 VALUES ($1, $2, $3, $4, $5, $6, CASE WHEN $6 THEN now() END, $7) RETURNING id`,
 			r.Type, r.Title, slug, r.Excerpt, r.Body, r.IsPublished, authmw.UserID(c)).Scan(&id)
 		if !isUniqueViolation(err) {
-			fmt.Println(err)
 			break
 		}
 	}
 	if err != nil {
 		return internalErr(err)
 	}
-
-	fmt.Println("sampai sini")
-	fmt.Println(ctx)
 
 	p, err := h.postByID(ctx, id)
 	if err != nil {
