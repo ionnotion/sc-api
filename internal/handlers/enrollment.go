@@ -97,6 +97,14 @@ func (h *Handler) CreateAcademicYear(c echo.Context) error {
 	if err := r.validate(); err != nil {
 		return err
 	}
+
+	start, _ := time.Parse("2006-01-02", r.StartDate) // format already checked by validate()
+	now := time.Now().In(h.Cfg.Location)
+	tomorrow := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, time.UTC)
+	if start.Before(tomorrow) {
+		return invalid(fmt.Sprintf("start_date must be %s or later", tomorrow.Format("2006-01-02")))
+	}
+
 	var y AcademicYear
 	err := scanYear(h.DB.QueryRow(c.Request().Context(),
 		`INSERT INTO academic_years (name, start_date, end_date, registration_open)

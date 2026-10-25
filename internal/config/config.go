@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Site struct {
@@ -21,6 +22,7 @@ type Config struct {
 	SeedEmail    string
 	SeedPassword string
 	Site         Site
+	Location     *time.Location
 }
 
 func Load() Config {
@@ -44,6 +46,11 @@ func Load() Config {
 		mb = 5
 	}
 	c.MaxUploadMB = mb
+	loc, tzErr := time.LoadLocation(env("SCHOOL_TIMEZONE", "Asia/Jakarta"))
+	if tzErr != nil {
+		log.Fatalf("invalid SCHOOL_TIMEZONE: %v", tzErr)
+	}
+	c.Location = loc
 	for _, o := range strings.Split(os.Getenv("CORS_ORIGINS"), ",") {
 		if o = strings.TrimSpace(o); o != "" {
 			c.CORSOrigins = append(c.CORSOrigins, o)
