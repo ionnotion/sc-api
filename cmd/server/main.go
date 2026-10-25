@@ -76,6 +76,7 @@ func main() {
 	api.GET("/news", h.ListNewsAPI)
 	api.GET("/news/:slug", h.GetNewsAPI)
 	api.GET("/academic-years", h.ListAcademicYears)
+	api.GET("/profile", h.GetProfile)
 
 	// ---- authenticated API
 	authed := api.Group("", authmw.JWT(cfg.JWTSecret, h.LookupUser))
@@ -98,6 +99,8 @@ func main() {
 	authed.GET("/admin/users/:id", h.GetUser, super)
 	authed.PATCH("/admin/users/:id", h.UpdateUser, super)
 	authed.DELETE("/admin/users/:id", h.DeleteUser, super)
+
+	authed.PUT("/admin/profile", h.UpdateProfile, super)
 
 	authed.GET("/admin/news", h.ListNewsAdmin, newsAdm)
 	authed.GET("/admin/news/:id", h.GetPostAdmin, newsAdm)
